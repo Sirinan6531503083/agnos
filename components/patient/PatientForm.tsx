@@ -19,6 +19,7 @@ import { realtime, PatientStatus } from "@/lib/realtime";
 import { translations, Language } from "@/lib/i18n";
 import LanguageToggle from "../ui/LanguageToggle";
 import Input from "../ui/Input";
+import DatePicker from "../ui/DatePicker";
 import Select from "../ui/Select";
 import Button from "../ui/Button";
 
@@ -66,7 +67,7 @@ export default function PatientForm() {
 
   const t = translations[lang];
 
-  // References for debounce and inactivity timers
+// ข้อมูลอ้างอิงสำหรับตัวจับเวลาดีบาวซ์และตัวจับเวลาการไม่ใช้งาน
   const debounceTimeoutRefs = useRef<Record<string, NodeJS.Timeout>>({});
   const inactivityTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -112,7 +113,7 @@ export default function PatientForm() {
     }
   };
 
-  // 2. Setup Real-time Connection listeners
+  //ตั้งค่าตัวรับฟังการเชื่อมต่อแบบเรียลไทม์
   useEffect(() => {
     if (!sessionId) return;
 
@@ -166,7 +167,7 @@ export default function PatientForm() {
     };
   }, [sessionId, formData, status]);
 
-  // 3. User activity/inactivity monitor
+  // ตัวตรวจสอบกิจกรรม/การไม่ใช้งานของผู้ใช้
   const resetInactivityTimer = () => {
     if (status === "submitted") return;
 
@@ -191,7 +192,7 @@ export default function PatientForm() {
     }, 10000);
   };
 
-  // 4. Form Validation Helper with i18n
+  //ตัวช่วยตรวจสอบความถูกต้องของแบบฟอร์มพร้อมการรองรับหลายภาษา (i18n)
   const validateField = (name: keyof FormState, value: string): string => {
     switch (name) {
       case "firstName":
@@ -224,9 +225,9 @@ export default function PatientForm() {
     }
   };
 
-  // 5. Handle Input Change with Debounce Sync
+  // จัดการการเปลี่ยนแปลงอินพุตด้วย Debounce Sync
   const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement> | { target: { name: string; value: string } }
   ) => {
     const { name, value } = e.target;
     const fieldName = name as keyof FormState;
@@ -314,7 +315,7 @@ export default function PatientForm() {
     localStorage.removeItem("agnos_patient_session");
   };
 
-  // Confirmation View
+  // Confirmation 
   if (isSubmitted) {
     return (
       <div className="rounded-3xl border border-emerald-100 bg-white p-8 text-center shadow-[0_12px_40px_rgba(15,23,42,0.05)] sm:p-12">
@@ -356,7 +357,7 @@ export default function PatientForm() {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-8">
-      {/* Sleek, Subtle Session & Status Bar */}
+     {/* แถบแสดงสถานะและเซสชัน */}
       <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-200/80 bg-white p-3 px-4 shadow-2xs">
         <div className="flex items-center gap-2.5">
           <span className="flex h-2 w-2 rounded-full bg-blue-500 animate-pulse" />
@@ -366,13 +367,13 @@ export default function PatientForm() {
         </div>
 
         <div className="flex items-center gap-2">
-          {/* Subtle Live Sync Indicator */}
+          {/* ตัวบ่งชี้การซิงค์แบบเรียลไทม์*/}
           <div className="inline-flex items-center gap-1.5 rounded-full bg-slate-50 border border-slate-200/60 px-2.5 py-1 text-[11px] font-medium text-slate-600">
             <Wifi className="h-3 w-3 text-emerald-500" />
             <span>{t.liveConnected}</span>
           </div>
 
-          {/* Minimal Activity State Pill */}
+          
           <div className="inline-flex items-center gap-1.5 rounded-full bg-slate-50 border border-slate-200/60 px-2.5 py-1 text-[11px] font-medium text-slate-600">
             <span className={`h-1.5 w-1.5 rounded-full ${
               status === "inactive" ? "bg-slate-400" : "bg-blue-500 animate-ping"
@@ -382,7 +383,7 @@ export default function PatientForm() {
         </div>
       </div>
 
-      {/* Form Section 1: Personal Particulars */}
+      {/* ส่วนที่ 1 ของแบบฟอร์ม: ข้อมูลส่วนบุคคล */}
       <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
         <div className="border-b border-slate-100 pb-5">
           <h2 className="flex items-center gap-2.5 text-lg font-bold text-slate-900">
@@ -433,17 +434,16 @@ export default function PatientForm() {
             error={errors.lastName}
           />
 
-          <Input
+          <DatePicker
             label={t.dob}
             name="dob"
             id="dob"
-            type="date"
             value={formData.dob}
             onChange={handleInputChange}
             onFocus={() => handleInputFocus("dob")}
             onBlur={handleInputBlur}
             error={errors.dob}
-            icon={CalendarDays}
+            locale={lang}
           />
 
           <Select
@@ -557,7 +557,7 @@ export default function PatientForm() {
         </div>
       </div>
 
-      {/* Form Section 2: Emergency Contact & Additional info */}
+     {/* ส่วนที่ 2 ของแบบฟอร์ม: ข้อมูลติดต่อในกรณีฉุกเฉินและข้อมูลเพิ่มเติม */}
       <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
         <div className="border-b border-slate-100 pb-5">
           <h2 className="flex items-center gap-2.5 text-lg font-bold text-slate-900">
