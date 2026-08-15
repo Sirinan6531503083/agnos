@@ -1,141 +1,148 @@
-# Agnos — Real-Time Patient Intake & Staff Monitoring
 
-A responsive patient intake form and staff monitoring dashboard built with Next.js, Tailwind CSS and Supabase Realtime for cross-device synchronization.
+ # Agnos — Real-time Patient Intake & Staff Monitoring
 
-This README explains how to set up the app locally, how realtime sync is wired (Supabase-only), and developer notes for the UI primitives and TODOs.
+ Agnos is a front-end example app built with Next.js and Tailwind CSS. It demonstrates a responsive patient intake form and a real-time staff monitoring dashboard synchronized using Supabase Realtime.
 
----
+Key parts:
 
-## Highlights
+- Patient Intake Form — responsive form for patients to enter their information from any device
+- Staff Dashboard — responsive, real-time view for staff to monitor incoming patient data without page refresh
 
-- Patient-facing intake form with validation, debounce and inactivity detection
-- Staff dashboard with live queue, typing presence, and patient detail panel
- - Realtime: Supabase Realtime broadcast channel (cross-tab & cross-device)
-- Reusable UI primitives: `components/ui/Card.tsx` and `components/ui/Badge.tsx` to centralize visual styles
+
+All real-time communication uses Supabase Realtime (broadcast channel), allowing different browsers/devices to synchronize immediately.
 
 ---
 
-## Quick Setup (Local)
 
-1) Clone and install
+## Features
+
+- Patient form: field validation, debounced field updates, inactivity detection
+- Staff dashboard: live queue, typing presence, immediate patient detail view
+- Realtime: Supabase Realtime broadcast channel (`agnos-broadcast`) for cross-tab and cross-device synchronization
+- UI primitives: reusable components such as `components/ui/Card.tsx` and `components/ui/Badge.tsx`
+
+---
+
+
+## Tech stack
+
+- Framework: Next.js (App Router)
+- Realtime: Supabase Realtime (`@supabase/supabase-js`)
+- Styling: Tailwind CSS
+- Hosting / deployment: Vercel (recommended) or any static-friendly front-end hosting
+
+---
+
+
+## Local setup
+
+1. Install dependencies
 
 ```bash
 npm install
 ```
 
-2) Add environment variables (required for realtime)
-
-Create `.env.local` at project root and set your Supabase project URL and anon (public) key. These are required for realtime to work across tabs/devices.
+2. Create `.env.local` at the project root and set Supabase environment variables
 
 ```env
-# Supabase project base URL (no trailing /rest/v1)
+# Supabase project base URL, e.g. https://your-project.supabase.co
 NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
-# Supabase anon/public key (do NOT use service_role key in the client)
+# Supabase anon/public key (do NOT use service_role key in client)
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
 ```
 
-3) Run the Next.js dev server
+Important: `NEXT_PUBLIC_SUPABASE_URL` must be the project base URL (do not include `/rest/v1/`).
+
+3. Run the dev server
 
 ```bash
 npm run dev
 ```
 
-Open http://localhost:3000 — open multiple tabs or devices and test realtime sync.
-
-If you need cross-network testing (devices on different networks), host a WebSocket broker on a public endpoint or use a tunnel (ngrok) and set `NEXT_PUBLIC_WS_URL` accordingly.
+Open http://localhost:3000 and test by opening the app on another device or browser tab.
 
 ---
 
-## Realtime (Supabase) — notes
 
-- The app uses Supabase Realtime (broadcasts on `agnos-broadcast`) when `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` are provided.
-- Ensure you use the project base URL (e.g. `https://<project>.supabase.co`) — do not include `/rest/v1/` in `NEXT_PUBLIC_SUPABASE_URL`.
-- Use the anon/public key from Supabase Project → Settings → API (not the service role key).
+## Supabase Realtime notes
 
----
-
-## Realtime Client Behavior
-
-- Client code: `lib/realtime.ts` — uses Supabase Realtime broadcast channel `agnos-broadcast` for cross-tab and cross-device syncing.
-
-- The Staff dashboard periodically sends `request_sync` (every 5s) and subscribes to incoming messages so staff sees updates without manual refresh.
-
-Recommendations:
-- Make sure `.env.local` contains the correct Supabase URL and anon key, then restart the dev server.
-- Add reconnect/backoff logic in `lib/realtime.ts` for production reliability (I can add this for you).
+- The app broadcasts on the `agnos-broadcast` channel when `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` are set.
+- Use the project base URL (e.g. `https://<project>.supabase.co`) and the public anon key from Supabase Project → Settings → API.
+- Do not use the service role key in client code.
 
 ---
 
-## Optional persistence
 
-Realtime uses Supabase broadcast events by default. If you need message persistence or an audit trail, use a Postgres table in your Supabase project and either:
-- insert messages into a `messages` table and have the staff client listen via `supabase.from('messages').on('INSERT', ...)`, or
-- persist on a backend process that subscribes to realtime events and writes to storage.
+## Client behavior (summary)
 
-I can add a small SQLite/Postgres example if you want persistence in this project.
+- Key files: `lib/supabase.ts` (Supabase client singleton) and `lib/realtime.ts` (realtime manager)
+
+Technical highlights:
+
+- Message buffering (queue) to avoid message loss if messages are sent before the channel is ready
+- Debounced field updates to reduce network chatter
+- `isConnected` state exposed to UI so components can show connection status
+
+Recommendation: add reconnect/backoff and health checks in `lib/realtime.ts` for production use — I can implement this if you wish.
 
 ---
 
-## Developer Notes
 
-- UI primitives:
-  - `components/ui/Card.tsx` centralizes the rounded card styles used across pages
-  - `components/ui/Badge.tsx` standardizes pill/status visuals
-
-- Accessibility / TODOs:
-  - `components/ui/Select.tsx` uses a hybrid native/custom dropdown for touch devices. Accessibility (keyboard/ARIA) needs improvement — tracked as TODO.
-  - Consider extracting the realtime logic in `PatientForm` into `usePatientRealtime` hook for reuse and clearer tests.
-
-- Scripts available (package.json):
-  - `npm run dev` — Next dev server
-  - `npm run build` — build
-  - `npm run start` — production start
-
-## Project Structure
+## Project structure (short)
 
 ```
 ├── app/
-│   ├── patient/
-│   │   └── page.tsx        # Patient Intake Form entry
-│   ├── staff/
-│   │   └── page.tsx        # Staff Dashboard entry
-│   ├── globals.css         # Tailwind v4 configuration
-│   ├── layout.tsx          # Main layout and HTML setup
-│   └── page.tsx            # Landing / role selector
+│   ├── patient/          # Patient intake page
+│   └── staff/            # Staff dashboard
 ├── components/
-│   ├── patient/
-│   │   └── PatientForm.tsx # Patient form, validation, sync (responsive)
-│   ├── staff/
-│   │   ├── PatientInfo.tsx # Live patient details panel
-│   │   ├── StaffDashboard.tsx # Queue manager + filters
-│   │   └── StatusIndicator.tsx # Small analytics card
-│   └── ui/                 # Reusable UI primitives
-│       ├── Button.tsx
-│       ├── Input.tsx
-│       └── Select.tsx
+│   ├── patient/          # PatientForm.tsx
+│   ├── staff/            # StaffDashboard.tsx, PatientInfo.tsx
+│   └── ui/               # Button, Input, Select, Card, Badge
 ├── lib/
-│   ├── supabase.ts         # Supabase client singleton
-│   └── realtime.ts         # Realtime manager (Supabase-only)
-├── package.json            # Scripts and dependencies
-└── tsconfig.json           # TypeScript config
+│   ├── supabase.ts       # Supabase client singleton
+│   └── realtime.ts       # Realtime manager (Supabase-only)
+├── public/               # favicon / static
+├── package.json
+└── tsconfig.json
 ```
 
 ---
 
-## Troubleshooting
 
-If staff doesn't see updates across devices:
-1. Ensure your WebSocket broker is running and reachable from both devices
-2. Verify `NEXT_PUBLIC_WS_URL` is set and the app restarted
-3. Check browser console/network logs for WS connect errors
+## Deployment (Vercel)
 
-For local cross-device testing behind NAT, use a tunnel (ngrok) and point `NEXT_PUBLIC_WS_URL` to the tunnel URL.
+1. Create a Vercel project and connect your GitHub repository
+2. Add environment variables on Vercel (same values as `.env.local`):
+
+  - `NEXT_PUBLIC_SUPABASE_URL`
+  - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+
+3. Deploy — Vercel will run `npm run build` and publish the site
+
+After deployment, test from multiple devices by opening the Staff Dashboard and submitting the patient form.
 
 ---
 
-If you want, I can:
-- add reconnect/backoff to `lib/realtime.ts` now
-- create a minimal `usePatientRealtime` hook and move logic out of `PatientForm`
-- create a short `README-DEV.md` with contributor setup and testing steps
 
-Tell me which of the above you'd like next.
+## Troubleshooting
+
+If you do not see real-time updates:
+
+1. Verify `.env.local` or Vercel environment variables — ensure `NEXT_PUBLIC_SUPABASE_URL` is the project base URL and `NEXT_PUBLIC_SUPABASE_ANON_KEY` is correct
+2. Check browser console for Supabase connection errors or 401/403 responses (wrong key)
+3. Confirm the app uses the `lib/supabase.ts` singleton — creating multiple clients can produce GoTrueClient warnings
+
+If you want persistence (store messages), write messages to a Postgres table in your Supabase project and have the staff client subscribe to INSERT events.
+
+---
+
+
+## Next steps / improvements
+
+- Add reconnect/backoff and health checks to `lib/realtime.ts` for production reliability
+- Extract realtime code into a `usePatientRealtime` hook for reuse and easier testing
+- Improve accessibility for `components/ui/Select.tsx` (keyboard and screen reader support)
+
+If you want, I can implement any of the above: reconnect/backoff, the `usePatientRealtime` hook, or a persistence example (Postgres). Tell me which to start.
+
+
