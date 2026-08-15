@@ -11,7 +11,7 @@ interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
 export const Input = forwardRef<HTMLInputElement, InputProps>(
   ({ label, error, icon: Icon, optional = false, className = "", id, ...props }, ref) => {
     return (
-      <div className="w-full">
+      <div className="w-full min-w-0">
         {label && (
           <label
             htmlFor={id}
@@ -21,18 +21,17 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
           </label>
         )}
 
-        <div className="relative">
+        <div className="relative w-full min-w-0">
           {Icon && (
             <div className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 transition-colors group-focus-within:text-blue-500">
               <Icon className="h-4.5 w-4.5" />
             </div>
           )}
-          
           <input
             id={id}
             ref={ref}
             className={`
-              w-full rounded-2xl border bg-white py-3.5 px-4 text-sm text-slate-900 shadow-sm outline-none transition-all duration-200
+              w-full min-w-0 box-border appearance-none rounded-2xl border bg-white py-3.5 px-4 text-sm text-slate-900 shadow-sm outline-none transition-all duration-200
               placeholder:text-slate-400
               focus:bg-white focus:ring-4 focus:ring-blue-500/10
               disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-400
