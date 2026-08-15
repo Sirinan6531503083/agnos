@@ -1,26 +1,225 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #f5f9ff;
+  --foreground: #0f172a;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+* {
+  box-sizing: border-box;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  scroll-behavior: smooth;
 }
 
 body {
-  background: var(--background);
+  margin: 0;
+  background: linear-gradient(180deg, #f3f8ff 0%, #eef5ff 28%, #f7fafc 100%);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+::selection {
+  background: rgba(59, 130, 246, 0.18);
+}
+
+input,
+select,
+textarea,
+button {
+  font: inherit;
+}
+
+.page-shell {
+  animation: pageEnter 0.8s ease-out both;
+}
+
+.reveal {
+  animation: revealUp 0.9s ease-out both;
+}
+
+.animated-gradient {
+  background: linear-gradient(
+    120deg,
+    rgba(191, 219, 254, 0.75),
+    rgba(147, 197, 253, 0.55),
+    rgba(224, 242, 254, 0.8),
+    rgba(186, 230, 253, 0.65),
+    rgba(191, 219, 254, 0.75)
+  );
+  background-size: 220% 220%;
+  animation: gradientShift 14s ease infinite;
+}
+
+.parallax-orb {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(18px);
+  opacity: 0.55;
+  animation: drift 18s ease-in-out infinite alternate;
+}
+
+.orb-one {
+  top: 8%;
+  left: 6%;
+  height: 18rem;
+  width: 18rem;
+  background: rgba(96, 165, 250, 0.28);
+}
+
+.orb-two {
+  right: 8%;
+  top: 18%;
+  height: 16rem;
+  width: 16rem;
+  background: rgba(125, 211, 252, 0.22);
+  animation-delay: 2s;
+}
+
+.orb-three {
+  left: 48%;
+  bottom: 10%;
+  height: 14rem;
+  width: 14rem;
+  background: rgba(191, 219, 254, 0.35);
+  animation-delay: 1s;
+}
+
+.particle {
+  position: absolute;
+  display: block;
+  border-radius: 9999px;
+  background: rgba(59, 130, 246, 0.5);
+  box-shadow: 0 0 10px rgba(96, 165, 250, 0.6);
+  animation: particleFloat 8s ease-in-out infinite;
+}
+
+.ecg-badge {
+  margin: 0 auto 1rem;
+  width: min(100%, 220px);
+  border: 1px solid rgba(59, 130, 246, 0.14);
+  background: rgba(255, 255, 255, 0.72);
+  box-shadow: 0 10px 25px rgba(59, 130, 246, 0.08);
+  border-radius: 9999px;
+  padding: 0.5rem 0.85rem;
+}
+
+.ecg-svg {
+  width: 100%;
+  height: 22px;
+  display: block;
+}
+
+.ecg-svg path {
+  stroke: #0f6efd;
+  stroke-width: 2.5;
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  animation: ecgPulse 1.6s ease-in-out infinite;
+}
+
+.floating-pill {
+  animation: floatY 6s ease-in-out infinite;
+}
+
+.floating-pill:nth-child(2) {
+  animation-delay: 0.8s;
+}
+
+.floating-pill:nth-child(3) {
+  animation-delay: 1.6s;
+}
+
+.tilt-card {
+  transform-style: preserve-3d;
+  transition: transform 0.35s ease, box-shadow 0.35s ease, border-color 0.35s ease;
+}
+
+.tilt-card:hover {
+  transform: translateY(-8px) rotateX(7deg) rotateY(-7deg) scale(1.01);
+}
+
+.parallax-badge {
+  transform: translateY(0);
+  animation: floatY 7s ease-in-out infinite;
+}
+
+@keyframes pageEnter {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes revealUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes gradientShift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+@keyframes drift {
+  0% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  100% {
+    transform: translate3d(30px, -24px, 0) scale(1.08);
+  }
+}
+
+@keyframes particleFloat {
+  0%,
+  100% {
+    opacity: 0.2;
+    transform: translateY(0) scale(0.9);
+  }
+  50% {
+    opacity: 0.9;
+    transform: translateY(-16px) scale(1.2);
+  }
+}
+
+@keyframes ecgPulse {
+  0%,
+  100% {
+    opacity: 0.8;
+    filter: drop-shadow(0 0 0 rgba(15, 110, 253, 0.1));
+  }
+  50% {
+    opacity: 1;
+    filter: drop-shadow(0 0 8px rgba(15, 110, 253, 0.35));
+  }
+}
+
+@keyframes floatY {
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
