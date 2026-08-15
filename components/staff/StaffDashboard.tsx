@@ -51,7 +51,7 @@ export default function StaffDashboard() {
     };
   }, []);
 
-  // 1. การตรวจสอบสถานะ WebSocket และการเชื่อมต่อคำขอซิงค์
+  // 1. ตรวจสอบสถานะ Supabase Realtime และขอข้อมูลล่าสุด
   useEffect(() => {
     const connCheck = setInterval(() => {
       setIsConnected(realtime.isConnected());
@@ -174,11 +174,11 @@ export default function StaffDashboard() {
           tone={submittedCount > 0 ? "green" : "slate"}
         />
         <StatusIndicator
-          icon={Wifi}
-          label={t.syncConnection}
-          value="Realtime Active"
-          detail={t.syncActiveDetail}
-          tone="green"
+        icon={Wifi}
+        label={t.syncConnection}
+        value={isConnected ? "Realtime Active" : "Disconnected"}
+        detail={isConnected ? t.syncActiveDetail : "Supabase Realtime is not connected"}
+        tone={isConnected ? "green" : "slate"}
         />
       </section>
 
@@ -216,46 +216,48 @@ export default function StaffDashboard() {
           </div>
 
           {/* Sessions Queue List */}
-           <div className="flex-1 overflow-y-auto divide-y divide-slate-50 p-2 max-h-[600px]">
-              <Card className="p-0 overflow-hidden min-h-[500px]">
+          <div className="flex-1 overflow-y-auto p-4 max-h-[600px]">
             {filteredSessions.length === 0 ? (
               <div className="p-8 text-center text-xs text-slate-400">
                 No active patient sessions found. Open Patient Form in another tab to test.
               </div>
             ) : (
-              filteredSessions.map((s) => {
-                const isSelected = selectedSessionId === s.sessionId;
-                return (
-                  <button
-                    key={s.sessionId}
-                    onClick={() => setSelectedSessionId(s.sessionId)}
-                    className={`w-full cursor-pointer rounded-2xl p-4 text-left transition-all ${
-                      isSelected
-                        ? "bg-blue-50/70 border border-blue-200/60 shadow-sm"
-                        : "hover:bg-slate-50 border border-transparent"
-                    }`}
-                  >
-                    <div className="flex items-center justify-between gap-2">
-                      <span className="text-xs font-bold text-slate-800 truncate">
-                        {s.patientName}
-                      </span>
-                      <Badge
-                        tone={s.status === "submitted" ? "green" : s.status === "inactive" ? "slate" : "blue"}
-                        className="px-2 py-0.5 text-[10px] font-bold"
-                      >
-                        {s.status === "submitted" ? t.statusSubmitted : s.status === "inactive" ? t.statusInactive : t.statusFilling}
-                      </Badge>
-                    </div>
+              <div className="space-y-3">
+                {filteredSessions.map((s) => {
+                  const isSelected = selectedSessionId === s.sessionId;
+                  return (
+                    <Card
+                      key={s.sessionId}
+                      size="sm"
+                      className={`w-full cursor-pointer transition-all ${
+                        isSelected
+                          ? "bg-blue-50 border border-blue-100 shadow-sm"
+                          : "hover:bg-slate-50"
+                      } p-3`}
+                      onClick={() => setSelectedSessionId(s.sessionId)}
+                      role="button"
+                    >
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0">
+                          <div className="text-sm md:text-base font-semibold text-slate-900 truncate">{s.patientName}</div>
+                          <div className="mt-1 text-[11px] text-slate-400">ID: {s.sessionId}</div>
+                        </div>
 
-                    <div className="mt-2 flex items-center justify-between text-[11px] text-slate-400">
-                      <span>ID: {s.sessionId}</span>
-                      <span>{new Date(s.lastActive).toLocaleTimeString()}</span>
-                    </div>
-                  </button>
-                );
-              })
+                        <div className="flex flex-col items-end">
+                          <Badge
+                            tone={s.status === "submitted" ? "green" : s.status === "inactive" ? "slate" : "blue"}
+                            className="px-2 py-0.5 text-[10px] font-semibold"
+                          >
+                            {s.status === "submitted" ? t.statusSubmitted : s.status === "inactive" ? t.statusInactive : t.statusFilling}
+                          </Badge>
+                          <div className="mt-2 text-[11px] text-slate-400">{new Date(s.lastActive).toLocaleTimeString()}</div>
+                        </div>
+                      </div>
+                    </Card>
+                  );
+                })}
+              </div>
             )}
-              </Card>
           </div>
         </div>
 

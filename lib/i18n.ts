@@ -1,8 +1,3 @@
-/**
- * Agnos Healthcare - i18n Dictionary & Translation Manager
- * Supports English (en) and Thai (th) switching.
- */
-
 export type Language = "en" | "th";
 
 export const translations = {
@@ -16,6 +11,7 @@ export const translations = {
     activeQueue: "Active Queue",
     yourQueue: "Queue ID",
     liveConnected: "Live Sync",
+    liveDisconnected: "Live Sync Disconnected",
 
     // Home Page
     systemBadge: "Patient Information System",
@@ -135,6 +131,7 @@ export const translations = {
     activeQueue: "หมายเลขคิว",
     yourQueue: "รหัสคิว",
     liveConnected: "เรียลไทม์",
+    liveDisconnected: "ไม่ได้เชื่อมต่อ",
 
     // Home Page
     systemBadge: "ระบบรับและติดตามข้อมูลผู้ป่วย",

@@ -1,10 +1,10 @@
-/**
- * Agnos Healthcare - Real-Time Synchronization Manager
- * 
- * Synchronizes Patient Form and Staff Dashboard via:
- * 1. HTML5 BroadcastChannel (zero-config instant same-browser multi-tab sync)
- * 2. WebSockets (cross-browser / cross-device local sync when WS server is active)
- */
+/** ตัวจัดการการซิงค์แบบเรียลไทม์ (โหมด Supabase เท่านั้น)
+
+*
+* - ใช้ช่องทางการออกอากาศแบบเรียลไทม์ของ Supabase `agnos-broadcast` เมื่อ
+* `NEXT_PUBLIC_SUPABASE_URL` และ `NEXT_PUBLIC_SUPABASE_ANON_KEY` ถูกตั้งค่า
+* - หากไม่ได้กำหนดค่า Supabase ตัวจัดการจะยังคงไม่ทำงาน
+*/
 
 export type PatientStatus = "filling" | "inactive" | "submitted";
 
@@ -18,111 +18,96 @@ export interface SyncMessage {
 export type MessageHandler = (message: SyncMessage) => void;
 
 class RealtimeSyncManager {
-  private socket: WebSocket | null = null;
-  private broadcastChannel: BroadcastChannel | null = null;
   private handlers: Set<MessageHandler> = new Set();
-  private isConnecting: boolean = false;
+  private supabaseClient: any = null;
+  private supabaseChannel: any = null;
+  private sendQueue: SyncMessage[] = [];
+  private channelReady: boolean = false;
 
   constructor() {
-    if (typeof window !== "undefined") {
-      this.initBroadcastChannel();
-      this.initWebSocket();
+    if (typeof window === "undefined") return;
+
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+    if (supabaseUrl && supabaseKey) {
+      this.initSupabaseRealtime(supabaseUrl, supabaseKey).catch((err) => {
+        console.warn("Realtime: failed to initialize Supabase realtime; realtime disabled.", err);
+      });
+    } else {
+      
+      console.warn("Realtime: Supabase not configured; realtime disabled.");
     }
   }
 
-  // 1. Initialize Browser BroadcastChannel for zero-config multi-tab local sync
-  private initBroadcastChannel() {
+  // เริ่มต้นใช้งาน Supabase Realtime สำหรับการซิงค์ข้อมูลระหว่างอุปกรณ์
+  private async initSupabaseRealtime(supabaseUrl: string, supabaseKey: string) {
     try {
-      this.broadcastChannel = new BroadcastChannel("agnos-patient-sync");
-      this.broadcastChannel.onmessage = (event) => {
-        if (event && event.data) {
-          this.notifyHandlers(event.data);
-        }
-      };
-    } catch {
-      // BroadcastChannel optional fallback
-    }
-  }
+      
+      const { getSupabaseClient } = await import("./supabase");
+      this.supabaseClient = getSupabaseClient();
 
-  // 2. Optional WebSocket client connection (graceful optional connection)
-  private initWebSocket() {
-    if (this.isConnecting || this.socket) return;
-    const wsUrl = process.env.NEXT_PUBLIC_WS_URL || `ws://${window.location.hostname}:8080`;
+      this.supabaseChannel = this.supabaseClient.channel("agnos-broadcast");
 
-    try {
-      this.isConnecting = true;
-      const ws = new WebSocket(wsUrl);
-
-      ws.onopen = () => {
-        this.socket = ws;
-        this.isConnecting = false;
-      };
-
-      ws.onmessage = (event) => {
+      this.supabaseChannel.on("broadcast", { event: "agnos" }, (payload: any) => {
         try {
-          const msg = JSON.parse(event.data) as SyncMessage;
-          this.notifyHandlers(msg);
-        } catch {
-          // Ignore invalid parse
+          const msg = payload?.payload ?? payload?.message ?? payload;
+          this.notifyHandlers(msg as SyncMessage);
+        } catch (e) {
         }
-      };
+      });
 
-      ws.onclose = () => {
-        this.socket = null;
-        this.isConnecting = false;
-      };
+      const { error } = await this.supabaseChannel.subscribe();
+      if (error) {
+        console.warn("Realtime: supabase channel subscription error:", error);
+        return;
+      }
 
-      ws.onerror = () => {
-        // Silent error fallback to BroadcastChannel
-        this.socket = null;
-        this.isConnecting = false;
-      };
-    } catch {
-      this.isConnecting = false;
+      this.channelReady = true;
+      console.info("Realtime: supabase channel subscribed");
+
+      
+      while (this.sendQueue.length > 0) {
+        const msg = this.sendQueue.shift();
+        if (msg) {
+          try {
+            
+            await this.supabaseChannel.send({ type: "broadcast", event: "agnos", payload: msg });
+          } catch (e) {
+            console.warn("Realtime: failed to flush queued message", e);
+          }
+        }
+      }
+    } catch (err) {
+      console.warn("Realtime: failed to initialize Supabase realtime, realtime disabled.", err);
     }
   }
 
-  /**
-   * Register callback to handle incoming real-time sync messages
-   */
   public subscribe(handler: MessageHandler): () => void {
     this.handlers.add(handler);
-    return () => {
-      this.handlers.delete(handler);
-    };
+    return () => this.handlers.delete(handler);
   }
 
-  /**
-   * Broadcast message to all connected clients
-   */
-  public send(type: SyncMessage["type"], sessionId: string, payload: any): void {
-    const msg: SyncMessage = {
-      type,
-      sessionId,
-      payload,
-      timestamp: new Date().toISOString(),
-    };
+  public async send(type: SyncMessage["type"], sessionId: string, payload: any): Promise<void> {
+    const msg: SyncMessage = { type, sessionId, payload, timestamp: new Date().toISOString() };
 
-    // Broadcast via BroadcastChannel
-    if (this.broadcastChannel) {
-      try {
-        this.broadcastChannel.postMessage(msg);
-      } catch {}
+    if (!this.supabaseChannel || !this.channelReady) {
+      this.sendQueue.push(msg);
+      console.debug("Realtime: queued message until supabase channel ready", msg.type, msg.sessionId);
+      return;
     }
 
-    // Broadcast via WebSocket if active
-    if (this.socket && this.socket.readyState === WebSocket.OPEN) {
-      try {
-        this.socket.send(JSON.stringify(msg));
-      } catch {}
+    try {
+      await this.supabaseChannel.send({ type: "broadcast", event: "agnos", payload: msg });
+      console.debug("Realtime: sent message", msg.type, msg.sessionId);
+    } catch (e) {
+      console.warn("Realtime: failed to send message", e);
+      this.sendQueue.push(msg);
     }
   }
 
-  /**
-   * Returns true if BroadcastChannel or WebSocket is active
-   */
   public isConnected(): boolean {
-    return this.broadcastChannel !== null || (this.socket !== null && this.socket.readyState === WebSocket.OPEN);
+    return this.supabaseChannel !== null;
   }
 
   private notifyHandlers(msg: SyncMessage): void {

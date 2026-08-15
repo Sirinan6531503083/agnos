@@ -274,7 +274,7 @@ export default function PatientForm() {
     realtime.send("field_focus", sessionId, { field: null });
   };
 
-  // 6. Form Submission
+  // Form Submission
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -369,9 +369,9 @@ export default function PatientForm() {
         </div>
 
         <div className="flex items-center gap-2">
-          <Badge tone="slate">
-            <Wifi className="h-3 w-3 text-emerald-500" />
-            <span className="font-medium">{t.liveConnected}</span>
+          <Badge tone={isConnected ? "blue" : "slate"} className="flex items-center gap-2">
+            <Wifi className={`h-3 w-3 ${isConnected ? "text-emerald-500" : "text-slate-400"}`} />
+            <span className="font-medium">{isConnected ? t.liveConnected : t.liveDisconnected}</span>
           </Badge>
 
           <Badge tone="slate" className="flex items-center gap-2">
