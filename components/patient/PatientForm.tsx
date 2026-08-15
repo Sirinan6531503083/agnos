@@ -18,7 +18,6 @@ import {
 import { realtime, PatientStatus } from "@/lib/realtime";
 import { translations, Language } from "@/lib/i18n";
 import LanguageToggle from "../ui/LanguageToggle";
-import DatePickerField from "../ui/DatePickerField";
 import Input from "../ui/Input";
 import Select from "../ui/Select";
 import Button from "../ui/Button";
