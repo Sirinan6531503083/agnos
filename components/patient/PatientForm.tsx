@@ -18,10 +18,12 @@ import {
 import { realtime, PatientStatus } from "@/lib/realtime";
 import { translations, Language } from "@/lib/i18n";
 import LanguageToggle from "../ui/LanguageToggle";
+import Card from "../ui/Card";
 import Input from "../ui/Input";
 import DatePicker from "../ui/DatePicker";
 import Select from "../ui/Select";
 import Button from "../ui/Button";
+import Badge from "../ui/Badge";
 
 interface FormState {
   firstName: string;
@@ -333,10 +335,10 @@ export default function PatientForm() {
           {t.thankYouMessage}
         </p>
 
-        <div className="mt-8 inline-flex items-center gap-2 rounded-full border border-slate-100 bg-slate-50 px-4 py-2 text-xs font-semibold text-slate-500">
+        <Badge tone="slate" className="mt-8">
           <span className="h-1.5 w-1.5 rounded-full bg-slate-400" />
           {t.queueRef}: {sessionId}
-        </div>
+        </Badge>
 
         <div className="mt-10 border-t border-slate-100 pt-8">
           <button
@@ -367,24 +369,20 @@ export default function PatientForm() {
         </div>
 
         <div className="flex items-center gap-2">
-          {/* ตัวบ่งชี้การซิงค์แบบเรียลไทม์*/}
-          <div className="inline-flex items-center gap-1.5 rounded-full bg-slate-50 border border-slate-200/60 px-2.5 py-1 text-[11px] font-medium text-slate-600">
+          <Badge tone="slate">
             <Wifi className="h-3 w-3 text-emerald-500" />
-            <span>{t.liveConnected}</span>
-          </div>
+            <span className="font-medium">{t.liveConnected}</span>
+          </Badge>
 
-          
-          <div className="inline-flex items-center gap-1.5 rounded-full bg-slate-50 border border-slate-200/60 px-2.5 py-1 text-[11px] font-medium text-slate-600">
-            <span className={`h-1.5 w-1.5 rounded-full ${
-              status === "inactive" ? "bg-slate-400" : "bg-blue-500 animate-ping"
-            }`} />
-            <span>{status === "inactive" ? t.statusInactive : t.statusFilling}</span>
-          </div>
+          <Badge tone="slate" className="flex items-center gap-2">
+            <span className={`h-1.5 w-1.5 rounded-full ${status === "inactive" ? "bg-slate-400" : "bg-blue-500 animate-ping"}`} />
+            <span className="font-medium">{status === "inactive" ? t.statusInactive : t.statusFilling}</span>
+          </Badge>
         </div>
       </div>
 
       {/* ส่วนที่ 1 ของแบบฟอร์ม: ข้อมูลส่วนบุคคล */}
-      <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+      <Card className="sm:p-8">
         <div className="border-b border-slate-100 pb-5">
           <h2 className="flex items-center gap-2.5 text-lg font-bold text-slate-900">
             <UserRound className="h-5 w-5 text-blue-600" />
@@ -555,10 +553,10 @@ export default function PatientForm() {
             )}
           </div>
         </div>
-      </div>
+      </Card>
 
      {/* ส่วนที่ 2 ของแบบฟอร์ม: ข้อมูลติดต่อในกรณีฉุกเฉินและข้อมูลเพิ่มเติม */}
-      <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+      <Card className="sm:p-8">
         <div className="border-b border-slate-100 pb-5">
           <h2 className="flex items-center gap-2.5 text-lg font-bold text-slate-900">
             <Heart className="h-5 w-5 text-rose-500" />
@@ -603,7 +601,7 @@ export default function PatientForm() {
             onBlur={handleInputBlur}
           />
         </div>
-      </div>
+      </Card>
 
      {/* Submission Controls */}
 <div className="flex w-full items-center justify-center sm:justify-end">

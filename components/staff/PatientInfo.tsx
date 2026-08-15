@@ -17,6 +17,8 @@ import {
 } from "lucide-react";
 import { PatientStatus } from "@/lib/realtime";
 import { translations, Language } from "@/lib/i18n";
+import Card from "../ui/Card";
+import Badge from "../ui/Badge";
 
 interface PatientInfoProps {
   sessionId: string | null;
@@ -37,10 +39,10 @@ export default function PatientInfo({
 }: PatientInfoProps) {
   const t = translations[lang];
 
-  // Empty State: No patient selected
+  // สถานะว่าง: ไม่ได้เลือกผู้ป่วย
   if (!sessionId || !formData) {
     return (
-      <section className="rounded-3xl border border-slate-200 bg-white p-8 text-center shadow-sm sm:p-12">
+      <Card className="text-center" size="lg">
         <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-blue-50 text-blue-500">
           <BookOpen className="h-7 w-7" />
         </div>
@@ -48,17 +50,17 @@ export default function PatientInfo({
         <p className="mt-2 text-sm text-slate-500 max-w-sm mx-auto leading-relaxed">
           {t.selectPatientPrompt}
         </p>
-      </section>
+      </Card>
     );
   }
 
-  // Helper to format values
+  // ตัวช่วยในการจัดรูปแบบค่า
   const formatValue = (val: any) => {
     if (val === undefined || val === null || val === "") return "-";
     return String(val);
   };
 
-  // Field Config with Icon and Label
+  // ตัวกำหนดฟิลด์พร้อมไอคอนและป้ายกำกับ
   const fields = [
     { key: "firstName", label: t.firstName, icon: User },
     { key: "middleName", label: t.middleName, icon: User },
@@ -73,7 +75,7 @@ export default function PatientInfo({
   ];
 
   return (
-    <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8 space-y-8">
+    <Card className="space-y-8" size="md">
       {/* Detail Header */}
       <div className="flex flex-col gap-4 border-b border-slate-100 pb-6 sm:flex-row sm:items-center sm:justify-between">
         <div>
@@ -91,23 +93,10 @@ export default function PatientInfo({
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
-          {/* Status Badge */}
-          <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-bold ${
-            status === "submitted"
-              ? "bg-emerald-50 text-emerald-700 border border-emerald-100"
-              : status === "inactive"
-              ? "bg-slate-50 text-slate-500 border border-slate-200"
-              : "bg-blue-50 text-blue-700 border border-blue-100"
-          }`}>
-            <span className={`h-1.5 w-1.5 rounded-full ${
-              status === "submitted" 
-                ? "bg-emerald-500" 
-                : status === "inactive" 
-                ? "bg-slate-400" 
-                : "bg-blue-500 animate-ping"
-            }`} />
+          <Badge tone={status === "submitted" ? "green" : status === "inactive" ? "slate" : "blue"}>
+            <span className={`h-1.5 w-1.5 rounded-full ${status === "submitted" ? "bg-emerald-500" : status === "inactive" ? "bg-slate-400" : "bg-blue-500 animate-ping"}`} />
             {status === "submitted" ? t.statusSubmitted : status === "inactive" ? t.statusInactive : t.statusFilling}
-          </span>
+          </Badge>
         </div>
       </div>
 
@@ -224,13 +213,13 @@ export default function PatientInfo({
         </div>
       </div>
 
-      {/* Safety Notice for Submitted Status */}
+      {/* ประกาศด้านความปลอดภัยสำหรับสถานะการส่ง */}
       {status === "submitted" && (
         <div className="flex items-center gap-3 rounded-2xl border border-emerald-100 bg-emerald-50/50 p-4 text-emerald-800 text-xs font-semibold">
           <ShieldAlert className="h-4.5 w-4.5 text-emerald-500" />
           {t.lockedNotice}
         </div>
       )}
-    </section>
+    </Card>
   );
 }

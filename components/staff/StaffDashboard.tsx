@@ -12,6 +12,8 @@ import {
 import { realtime, SyncMessage, PatientStatus } from "@/lib/realtime";
 import { translations, Language } from "@/lib/i18n";
 import LanguageToggle from "../ui/LanguageToggle";
+import Card from "../ui/Card";
+import Badge from "../ui/Badge";
 import PatientInfo from "./PatientInfo";
 import StatusIndicator from "./StatusIndicator";
 
@@ -60,6 +62,10 @@ export default function StaffDashboard() {
     };
     
     const syncTimeout = setTimeout(requestSyncOnMount, 800);
+   // การร้องขอการซิงค์เป็นระยะเพื่อให้แน่ใจว่าเจ้าหน้าที่เห็นเซสชันล่าสุดโดยไม่ต้องรีเฟรชด้วยตนเอง
+    const periodicSync = setInterval(() => {
+      realtime.send("request_sync", "all", {});
+    }, 5000);
 
     // 2. สมัครรับข้อมูลเหตุการณ์แบบเรียลไทม์
     const unsubscribe = realtime.subscribe((msg: SyncMessage) => {
@@ -123,6 +129,7 @@ export default function StaffDashboard() {
     return () => {
       clearInterval(connCheck);
       clearTimeout(syncTimeout);
+      clearInterval(periodicSync);
       unsubscribe();
     };
   }, []);
@@ -209,7 +216,8 @@ export default function StaffDashboard() {
           </div>
 
           {/* Sessions Queue List */}
-          <div className="flex-1 overflow-y-auto divide-y divide-slate-50 p-2 max-h-[600px]">
+           <div className="flex-1 overflow-y-auto divide-y divide-slate-50 p-2 max-h-[600px]">
+              <Card className="p-0 overflow-hidden min-h-[500px]">
             {filteredSessions.length === 0 ? (
               <div className="p-8 text-center text-xs text-slate-400">
                 No active patient sessions found. Open Patient Form in another tab to test.
@@ -231,15 +239,12 @@ export default function StaffDashboard() {
                       <span className="text-xs font-bold text-slate-800 truncate">
                         {s.patientName}
                       </span>
-                      <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold ${
-                        s.status === "submitted"
-                          ? "bg-emerald-100/60 text-emerald-700"
-                          : s.status === "inactive"
-                          ? "bg-slate-100 text-slate-500"
-                          : "bg-blue-100/60 text-blue-700 animate-pulse"
-                      }`}>
+                      <Badge
+                        tone={s.status === "submitted" ? "green" : s.status === "inactive" ? "slate" : "blue"}
+                        className="px-2 py-0.5 text-[10px] font-bold"
+                      >
                         {s.status === "submitted" ? t.statusSubmitted : s.status === "inactive" ? t.statusInactive : t.statusFilling}
-                      </span>
+                      </Badge>
                     </div>
 
                     <div className="mt-2 flex items-center justify-between text-[11px] text-slate-400">
@@ -250,6 +255,7 @@ export default function StaffDashboard() {
                 );
               })
             )}
+              </Card>
           </div>
         </div>
 
