@@ -1,5 +1,6 @@
-import React, { forwardRef } from "react";
+import React, { forwardRef, useRef } from "react";
 import type { LucideIcon } from "lucide-react";
+import { CalendarDays } from "lucide-react";
 
 interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: string;
@@ -9,7 +10,29 @@ interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
 }
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(
-  ({ label, error, icon: Icon, optional = false, className = "", id, ...props }, ref) => {
+  ({ label, error, icon: Icon, optional = false, className = "", id, type, ...props }, ref) => {
+    const internalRef = useRef<HTMLInputElement>(null);
+    const isDate = type === "date";
+
+    // รวม ref จากภายนอก (forwardRef) กับ ref ภายในไว้ตัวเดียวกัน
+    const setRefs = (node: HTMLInputElement) => {
+      internalRef.current = node;
+      if (typeof ref === "function") ref(node);
+      else if (ref) (ref as React.MutableRefObject<HTMLInputElement | null>).current = node;
+    };
+
+    const openDatePicker = () => {
+      if (internalRef.current?.showPicker) {
+        try {
+          internalRef.current.showPicker();
+        } catch {
+          internalRef.current.focus();
+        }
+      } else {
+        internalRef.current?.focus();
+      }
+    };
+
     return (
       <div className="w-full min-w-0">
         {label && (
@@ -21,21 +44,29 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
           </label>
         )}
 
-        <div className="relative w-full min-w-0">
+        <div className="relative w-full min-w-0 group">
           {Icon && (
-            <div className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 transition-colors group-focus-within:text-blue-500">
+            <div
+              onClick={isDate ? openDatePicker : undefined}
+              className={`absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 transition-colors group-focus-within:text-blue-500 ${
+                isDate ? "cursor-pointer z-10" : "pointer-events-none"
+              }`}
+            >
               <Icon className="h-4.5 w-4.5" />
             </div>
           )}
           <input
             id={id}
-            ref={ref}
+            type={type}
+            ref={setRefs}
+            onClick={isDate ? openDatePicker : props.onClick}
             className={`
               w-full min-w-0 box-border appearance-none rounded-2xl border bg-white py-3.5 px-4 text-sm text-slate-900 shadow-sm outline-none transition-all duration-200
               placeholder:text-slate-400
               focus:bg-white focus:ring-4 focus:ring-blue-500/10
               disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-400
               ${Icon ? "pl-11" : ""}
+              ${isDate ? "cursor-pointer [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:right-0 [&::-webkit-calendar-picker-indicator]:h-full [&::-webkit-calendar-picker-indicator]:w-full [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:cursor-pointer" : ""}
               ${error 
                 ? "border-rose-300 focus:border-rose-500 focus:ring-rose-500/10" 
                 : "border-slate-200 focus:border-blue-500"
