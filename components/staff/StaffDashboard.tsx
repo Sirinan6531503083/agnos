@@ -49,7 +49,7 @@ export default function StaffDashboard() {
     };
   }, []);
 
-  // 1. WebSocket status checks and mounting sync requests
+  // 1. การตรวจสอบสถานะ WebSocket และการเชื่อมต่อคำขอซิงค์
   useEffect(() => {
     const connCheck = setInterval(() => {
       setIsConnected(realtime.isConnected());
@@ -61,7 +61,7 @@ export default function StaffDashboard() {
     
     const syncTimeout = setTimeout(requestSyncOnMount, 800);
 
-    // 2. Subscribe to real-time events
+    // 2. สมัครรับข้อมูลเหตุการณ์แบบเรียลไทม์
     const unsubscribe = realtime.subscribe((msg: SyncMessage) => {
       const { type, sessionId, payload, timestamp } = msg;
 
@@ -175,9 +175,8 @@ export default function StaffDashboard() {
         />
       </section>
 
-      {/* Main Split Layout */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-        {/* Left Side: Queue Monitor List */}
+
         <div className="flex flex-col rounded-3xl border border-slate-200 bg-white shadow-sm overflow-hidden min-h-[500px]">
           {/* Header & Search */}
           <div className="border-b border-slate-100 p-5 space-y-4">
@@ -254,7 +253,7 @@ export default function StaffDashboard() {
           </div>
         </div>
 
-        {/* Right Side: Detailed Patient Particulars */}
+        {/* รายละเอียดข้อมูลผู้ป่วย */}
         <div className="lg:col-span-2">
           <PatientInfo
             sessionId={selectedSession?.sessionId || null}

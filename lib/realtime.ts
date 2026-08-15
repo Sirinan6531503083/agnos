@@ -130,7 +130,7 @@ class RealtimeSyncManager {
       try {
         handler(msg);
       } catch (err) {
-        console.error("❌ Error in sync message handler:", err);
+        console.error("Error in sync message handler:", err);
       }
     });
   }

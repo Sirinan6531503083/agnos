@@ -31,7 +31,7 @@ export default function StaffPage() {
     <main className="min-h-screen bg-[#f5f9ff] text-slate-900">
       <Header />
 
-      <div className="mx-auto min-h-[calc(100vh-136px)] w-full max-w-6xl px-4 py-3 sm:px-6 lg:px-8">
+      <div className="mx-auto min-h-[calc(100vh-136px)] w-full max-w-5xl px-4 py-3 sm:px-6 lg:px-8 mt-6">
         <section className="py-2 sm:py-3">
           <Link
             href="/"
@@ -67,13 +67,38 @@ export default function StaffPage() {
           </div>
         </section>
 
+        {/* แถบข้อมูลขนาดเล็ก */}
         <div className="mt-3">
-          <StaffDashboard />
+          <div className="rounded-2xl border border-slate-100 bg-white p-3 shadow-sm flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <div className="h-9 w-9 flex items-center justify-center rounded-2xl bg-blue-50 text-blue-600 shadow-sm">
+                <Stethoscope className="h-5 w-5" />
+              </div>
+              <div>
+                <p className="text-xs text-slate-500">รหัสคิว:</p>
+                <p className="text-sm font-semibold text-slate-800">P-----</p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <div className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-medium text-emerald-700 shadow-sm">
+                <span className="relative flex h-2 w-2">
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
+                  <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
+                </span>
+                {"Realtime Active"}
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-4 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+            <StaffDashboard />
+          </div>
         </div>
       </div>
 
       <footer className="border-t border-slate-200/60 bg-white/70 backdrop-blur-sm">
-        <div className="mx-auto flex w-full max-w-6xl items-center justify-center px-4 py-4 sm:px-6 lg:px-8">
+        <div className="mx-auto flex w-full max-w-5xl items-center justify-center px-4 py-4 sm:px-6 lg:px-8">
           <p className="text-[11px] text-slate-400">AGNOS Healthcare System &copy; {new Date().getFullYear()}</p>
         </div>
       </footer>

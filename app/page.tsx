@@ -27,21 +27,15 @@ export default function Home() {
   }, []);
 
   return (
-    <main className="relative min-h-screen overflow-hidden bg-[#f5f9ff] text-slate-900">
+    <div className="relative flex min-h-screen flex-col overflow-hidden bg-[#f5f9ff] text-slate-900">
       <div className="pointer-events-none absolute inset-0">
         <div className="absolute -left-32 -top-32 h-96 w-96 rounded-full bg-blue-200/30 blur-3xl" />
         <div className="absolute -bottom-32 -right-32 h-96 w-96 rounded-full bg-cyan-200/20 blur-3xl" />
       </div>
 
       <Header />
-
-      <div className="relative mx-auto flex min-h-[calc(100vh-136px)] w-full max-w-6xl flex-col px-5 py-8 sm:px-8 lg:px-12">
+      <div className="relative mx-auto flex w-full max-w-5xl flex-1 flex-col px-5 py-8 sm:px-8 lg:px-12 mt-6">
         <section className="flex flex-1 flex-col items-center justify-center py-14 text-center">
-          <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-blue-100 bg-white px-4 py-2 text-sm font-medium text-blue-700 shadow-sm">
-            <span className="h-2 w-2 rounded-full bg-blue-600" />
-            {t.systemBadge}
-          </div>
-
           <h1 className="max-w-3xl text-4xl font-bold tracking-tight text-slate-950 sm:text-5xl lg:text-6xl">
             {t.welcomeTitle}{" "}
             <span className="text-blue-600">{t.welcomeBrand}</span>
@@ -118,11 +112,11 @@ export default function Home() {
         </section>
       </div>
 
-      <footer className="relative border-t border-slate-200/60 bg-white/70 backdrop-blur-sm">
-        <div className="mx-auto flex w-full max-w-6xl items-center justify-center px-4 py-4 sm:px-6 lg:px-8">
+      <footer className="relative mt-auto border-t border-slate-200/60 bg-white/70 backdrop-blur-sm">
+        <div className="mx-auto flex w-full max-w-5xl items-center justify-center px-4 py-4 sm:px-6 lg:px-8">
           <p className="text-[11px] text-slate-400">AGNOS Healthcare System &copy; {new Date().getFullYear()}</p>
         </div>
       </footer>
-    </main>
+    </div>
   );
 }

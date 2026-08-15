@@ -13,31 +13,16 @@ export default function LanguageToggle({
   currentLang,
   onLanguageChange,
 }: LanguageToggleProps) {
+  const nextLang: Language = currentLang === "en" ? "th" : "en";
+
   return (
-    <div className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-white/90 p-1 shadow-sm backdrop-blur-sm">
-      <Globe className="ml-2 h-3.5 w-3.5 text-slate-400" />
-      <button
-        type="button"
-        onClick={() => onLanguageChange("en")}
-        className={`rounded-full px-2.5 py-1 text-xs font-bold transition-all ${
-          currentLang === "en"
-            ? "bg-blue-600 text-white shadow-sm"
-            : "text-slate-500 hover:text-slate-900"
-        }`}
-      >
-        🇬🇧 EN
-      </button>
-      <button
-        type="button"
-        onClick={() => onLanguageChange("th")}
-        className={`rounded-full px-2.5 py-1 text-xs font-bold transition-all ${
-          currentLang === "th"
-            ? "bg-blue-600 text-white shadow-sm"
-            : "text-slate-500 hover:text-slate-900"
-        }`}
-      >
-        🇹🇭 TH
-      </button>
-    </div>
+    <button
+      type="button"
+      onClick={() => onLanguageChange(nextLang)}
+      className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-white/90 px-2 py-1 text-[10px] font-bold text-slate-600 shadow-sm backdrop-blur-sm transition-all hover:border-blue-200 hover:text-blue-600 active:scale-95 sm:gap-1.5 sm:px-2.5 sm:py-1 sm:text-xs"
+    >
+      <Globe className="h-3 w-3 text-slate-400 sm:h-3.5 sm:w-3.5" />
+      <span>{currentLang === "en" ? "🇬🇧 EN" : "🇹🇭 TH"}</span>
+    </button>
   );
 }

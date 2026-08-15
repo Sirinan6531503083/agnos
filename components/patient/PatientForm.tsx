@@ -18,6 +18,7 @@ import {
 import { realtime, PatientStatus } from "@/lib/realtime";
 import { translations, Language } from "@/lib/i18n";
 import LanguageToggle from "../ui/LanguageToggle";
+import DatePickerField from "../ui/DatePickerField";
 import Input from "../ui/Input";
 import Select from "../ui/Select";
 import Button from "../ui/Button";
@@ -605,17 +606,17 @@ export default function PatientForm() {
         </div>
       </div>
 
-      {/* Submission Controls */}
-      <div className="flex items-center justify-end gap-4">
-        <Button
-          type="submit"
-          variant="primary"
-          loading={isSubmitting}
-          className="w-full sm:w-auto min-w-[200px]"
-        >
-          {t.submitForm}
-        </Button>
-      </div>
+     {/* Submission Controls */}
+<div className="flex w-full items-center justify-center sm:justify-end">
+  <Button
+    type="submit"
+    variant="primary"
+    loading={isSubmitting}
+    className="px-5 py-2 text-sm sm:px-6 sm:py-2.5"
+  >
+    {t.submitForm}
+  </Button>
+</div>
     </form>
   );
 }

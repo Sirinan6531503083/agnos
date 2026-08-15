@@ -32,10 +32,11 @@ export default function Header({ onLanguageChange }: HeaderProps) {
   };
 
   return (
-    <header className="sticky top-0 z-50 border-b border-slate-200/60 bg-white/80 backdrop-blur-md">
-      <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
+    <header className="sticky top-4 z-50">
+      <div className="mx-auto flex w-full max-w-6xl items-center justify-center px-4 sm:px-6 lg:px-8">
+        <div className="w-full max-w-5xl rounded-3xl border border-slate-100 bg-white/90 backdrop-blur-md px-4 py-3 shadow-sm flex items-center justify-between">
         <Link href="/" className="flex items-center gap-3 group">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#0f6efd] shadow-sm shadow-blue-500/20 group-hover:bg-blue-700 transition">
+          <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[#0f6efd] shadow-sm shadow-blue-500/20 group-hover:bg-blue-700 transition">
             <HeartPulse className="h-5 w-5 text-white" />
           </div>
 
@@ -47,8 +48,9 @@ export default function Header({ onLanguageChange }: HeaderProps) {
           </div>
         </Link>
 
-        {/* Language Switcher on Far Right of Header */}
+        {/* ตัวเลือกเปลี่ยนภาษา */}
         <LanguageToggle currentLang={lang} onLanguageChange={handleLangSwitch} />
+        </div>
       </div>
     </header>
   );

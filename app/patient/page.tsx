@@ -31,7 +31,7 @@ export default function PatientPage() {
     <main className="min-h-screen bg-[#f5f9ff] text-slate-900">
       <Header />
 
-      <div className="mx-auto min-h-[calc(100vh-136px)] w-full max-w-5xl px-4 py-3 sm:px-6 lg:px-8">
+      <div className="mx-auto min-h-[calc(100vh-136px)] w-full max-w-5xl px-4 py-3 sm:px-6 lg:px-8 mt-6">
         <section className="py-2 sm:py-3">
           <Link
             href="/"
@@ -57,7 +57,7 @@ export default function PatientPage() {
           </div>
         </section>
 
-        {/* Patient Intake Form Component */}
+        {/* ส่วนประกอบแบบฟอร์มรับข้อมูลผู้ป่วย */}
         <div className="mt-2">
           <PatientForm />
         </div>
